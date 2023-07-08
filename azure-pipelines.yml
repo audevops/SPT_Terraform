@@ -9,8 +9,8 @@ trigger:
 pool:
  name: Default
 
-variables:
-- group: TF_Varibales
+#variables:
+#- group: TF_Varibales*/
 
 steps:
 - script: echo Hello, world!
