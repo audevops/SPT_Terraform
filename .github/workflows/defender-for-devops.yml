@@ -20,9 +20,9 @@ name: "Microsoft Defender For Devops"
 
 on:
   push:
-    branches: [ "SPT_Terraform" ]
+    branches: [ "SPT-TEST" ]
   pull_request:
-    branches: [ "SPT_Terraform" ]
+    branches: [ "SPT-TEST" ]
   schedule:
     - cron: '16 11 * * 6'
 
