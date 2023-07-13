@@ -41,10 +41,10 @@ jobs:
     - name: Run Microsoft Security DevOps
       uses: microsoft/security-devops-action@v1.6.0
       id: msdo
-  tasks:
-    - name: Display file contents
-      win_shell: type D:\a\SPT_Terraform\SPT_Terraform\.gdn\msdo.sarif
+
     - name: Upload results to Security tab
       uses: github/codeql-action/upload-sarif@v2
       with:
         sarif_file: ${{ steps.msdo.outputs.sarifFile }}
+    - name: Display file contents
+      run: type D:\a\SPT_Terraform\SPT_Terraform\.gdn\msdo.sarif
