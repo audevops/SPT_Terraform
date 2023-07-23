@@ -22,4 +22,6 @@ steps:
 
 - script:
       terraform --version && df -kh 
-      #&& terraform init && terraform plan && terraform apply --auto-approve
+      terraform fmt && terraform init && terraform validate
+      #terraform plan 
+      #&& terraform apply --auto-approve

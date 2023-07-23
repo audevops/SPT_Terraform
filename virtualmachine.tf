@@ -1,19 +1,22 @@
-resource "azurerm_virtual_network" "DB_Vnet" {
-  name                = "DB_Vnet"
+resource "azurerm_virtual_network" "NanKum_Vnet" {
+  name                = "NanKum_Vnet"
   address_space       = ["10.0.0.0/16"]
   location            = var.location
   resource_group_name = var.resource_group_name
 }
 
-resource "azurerm_subnet" "DB_sub" {
-  name                 = "DB-subnet"
+resource "azurerm_subnet" "NanKum_Sub" {
+  name                 = "NanKum_Sub"
   resource_group_name  = var.resource_group_name
-  virtual_network_name = azurerm_virtual_network.DB_Vnet.name
-  address_prefixes     = ["10.0.0.0/24"]
+  virtual_network_name = "NanKum_Vnet"
+  address_prefixes     = ["10.0.1.0/24"]
+  depends_on = [
+    azurerm_virtual_network.NanKum_Vnet
+  ]
 }
 
-resource "azurerm_public_ip" "DB_pub_IP_1" {
-  name                = "DB-public-ip"
+resource "azurerm_public_ip" "NanKum_pub_IP_1" {
+  name                = "DB-public-ip-NJ"
   location            = var.location
   resource_group_name = var.resource_group_name
   allocation_method   = "Dynamic"
@@ -27,74 +30,52 @@ resource "azurerm_public_ip" "MON_pub_IP_4" {
 }
 
 resource "azurerm_network_interface" "DB-nic-1" {
-  name                = "DB-nic_1"
+  name                = "DB-nic-NJ"
   location            = var.location
   resource_group_name = var.resource_group_name
   ip_configuration {
     name                          = "DB-nic-configuration"
-    subnet_id                     = azurerm_subnet.DB_sub.id
+    subnet_id                     = azurerm_subnet.NanKum_Sub.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.DB_pub_IP_1.id
+    public_ip_address_id          = azurerm_public_ip.NanKum_pub_IP_1.id
   }
 }
 
-resource "azurerm_network_interface" "MON-nic" {
-  name                = "MON-nic"
+resource "azurerm_virtual_machine" "NanKum_VM" {
+  name                = "NANKUMVM1"
   location            = var.location
   resource_group_name = var.resource_group_name
-  ip_configuration {
-    name                          = "MON-nic-configuration"
-    subnet_id                     = azurerm_subnet.DB_sub.id
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.MON_pub_IP_4.id
-  }
-}
-resource "azurerm_linux_virtual_machine" "DB_VM_1" {
-  name                = "DBVM1"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  size                = "Standard_D2s_v3"
-  admin_username      = "adminuser"
+  vm_size             = "Standard_D2s_v3"
+  /*admin_username      = "adminuser"*/
   network_interface_ids = [
     azurerm_network_interface.DB-nic-1.id,
   ]
-  admin_password                  = "Proximus#18"
-  disable_password_authentication = false
-
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
+  storage_os_disk {
+    name              = "myosdisk1"
+    caching           = "ReadWrite"
+    create_option     = "FromImage"
+    managed_disk_type = "Standard_LRS"
   }
 
-  source_image_reference {
+  storage_image_reference {
     publisher = "Canonical"
     offer     = "0001-com-ubuntu-server-focal"
-    sku       = "20_04-lts"
+    sku       = "20_04-lts-gen2"
     version   = "latest"
   }
-}
-
-resource "azurerm_linux_virtual_machine" "MON1" {
-  name                = "MON1"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  size                = "Standard_D2s_v3"
-  admin_username      = "adminuser"
-  network_interface_ids = [
-    azurerm_network_interface.MON-nic.id,
-  ]
-  admin_password                  = "Proximus#18"
-  disable_password_authentication = false
-
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
+  os_profile {
+    computer_name  = "NANKUMVM1"
+    admin_username = "testadmin"
+    admin_password = "Password1234!"
+    custom_data = base64encode(<<EOF
+#!/bin/bash
+sudo apt-get update
+sudo apt-get install -y apache2
+sudo service apache2 start
+EOF
+    )
   }
-
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-focal"
-    sku       = "20_04-lts"
-    version   = "latest"
+  os_profile_linux_config {
+    disable_password_authentication = false
   }
 }
