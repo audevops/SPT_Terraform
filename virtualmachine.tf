@@ -42,7 +42,7 @@ resource "azurerm_virtual_machine" "NanKum_VM" {
   vm_size             = "Standard_D2s_v3"
   /*admin_username      = "adminuser"*/
   network_interface_ids = [
-    azurerm_network_interface.DB-nic-1.id,
+    azurerm_network_interface.NANKUM-nic-1.id,
   ]
   storage_os_disk {
     name              = "NANKUMdisk1"
