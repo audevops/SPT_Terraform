@@ -16,25 +16,19 @@ resource "azurerm_subnet" "NanKum_Sub" {
 }
 
 resource "azurerm_public_ip" "NanKum_pub_IP_1" {
-  name                = "DB-public-ip-NJ"
+  name                = "NANKUM-public-ip"
   location            = var.location
   resource_group_name = var.resource_group_name
   allocation_method   = "Dynamic"
 }
 
-resource "azurerm_public_ip" "MON_pub_IP_4" {
-  name                = "MON-public-ip-4"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  allocation_method   = "Dynamic"
-}
 
-resource "azurerm_network_interface" "DB-nic-1" {
-  name                = "DB-nic-NJ"
+resource "azurerm_network_interface" "NANKUM-nic-1" {
+  name                = "NANKUM-nic"
   location            = var.location
   resource_group_name = var.resource_group_name
   ip_configuration {
-    name                          = "DB-nic-configuration"
+    name                          = "NANKUM-nic-configuration"
     subnet_id                     = azurerm_subnet.NanKum_Sub.id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.NanKum_pub_IP_1.id
@@ -51,7 +45,7 @@ resource "azurerm_virtual_machine" "NanKum_VM" {
     azurerm_network_interface.DB-nic-1.id,
   ]
   storage_os_disk {
-    name              = "myosdisk1"
+    name              = "NANKUMdisk1"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
